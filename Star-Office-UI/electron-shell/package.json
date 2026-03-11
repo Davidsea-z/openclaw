@@ -1,0 +1,14 @@
+{
+  "name": "star-office-ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^40.6.1"
+  },
+  "productName": "Star Office UI"
+}

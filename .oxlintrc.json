@@ -25,6 +25,7 @@
   "ignorePatterns": [
     "assets/",
     "dist/",
+    "Star-Office-UI/",
     "docs/_layouts/",
     "extensions/",
     "node_modules/",
