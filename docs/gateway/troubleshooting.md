@@ -88,6 +88,36 @@ Related:
 - [/channels/pairing](/channels/pairing)
 - [/channels/groups](/channels/groups)
 
+## HTTP 401: invalid access token or token expired (Control UI)
+
+The gateway only accepts connections that send the same token it has in config (or env). If the browser sends no token, a different token, or the gateway was not restarted after changing the token, you get 401.
+
+**Do this in order:**
+
+1. **Set or confirm the token on the gateway host** (same machine where the gateway runs):
+
+   ```bash
+   # Optional: generate a new token and write it to config
+   NEW_TOKEN=$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")
+   openclaw config set gateway.auth.token "$NEW_TOKEN"
+   ```
+
+2. **Restart the gateway** so it loads the new config.
+   - **macOS (menubar app):** quit the OpenClaw app and open it again (or use the app’s restart). Do not only refresh the browser.
+   - **CLI:** stop the process that runs `openclaw gateway run`, then start it again.
+
+3. **Open the Control UI using the URL that includes the token** (do not open `http://127.0.0.1:18789/` by itself):
+
+   ```bash
+   openclaw dashboard --no-open
+   ```
+
+   Copy the **entire** line it prints (e.g. `Dashboard URL: http://127.0.0.1:18789/#token=...`) and paste it into the browser address bar. The UI will read the token from the URL and connect.
+
+4. If instead you see `Token auto-auth unavailable`, the CLI could not read the token (e.g. SecretRef not resolved or no token in config). Then either set a plain token with `openclaw config set gateway.auth.token "..."` and restart the gateway, or export `OPENCLAW_GATEWAY_TOKEN` in the same shell and run `openclaw dashboard --no-open` again.
+
+Related: [Dashboard](/web/dashboard), [Control UI](/web/control-ui).
+
 ## Dashboard control ui connectivity
 
 When dashboard/control UI will not connect, validate URL, auth mode, and secure context assumptions.

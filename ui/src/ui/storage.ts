@@ -1,6 +1,15 @@
 const KEY = "openclaw.control.settings.v1";
 
-type PersistedUiSettings = Omit<UiSettings, "token"> & { token?: never };
+/** When true, token is persisted so localhost users can "set once" and reuse. */
+function isLocalhostOrigin(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const h = window.location?.hostname ?? "";
+  return h === "127.0.0.1" || h === "localhost";
+}
+
+type PersistedUiSettings = Omit<UiSettings, "token"> & { token?: string };
 
 import { isSupportedLocale } from "../i18n/index.ts";
 import { inferBasePathFromPathname, normalizeBasePath } from "./navigation.ts";
@@ -57,8 +66,11 @@ export function loadSettings(): UiSettings {
         typeof parsed.gatewayUrl === "string" && parsed.gatewayUrl.trim()
           ? parsed.gatewayUrl.trim()
           : defaults.gatewayUrl,
-      // Gateway auth is intentionally in-memory only; scrub any legacy persisted token on load.
-      token: defaults.token,
+      // Persist token only on localhost so "set once" (via dashboard URL or paste) sticks.
+      token:
+        isLocalhostOrigin() && typeof parsed.token === "string" && parsed.token.trim()
+          ? parsed.token.trim()
+          : defaults.token,
       sessionKey:
         typeof parsed.sessionKey === "string" && parsed.sessionKey.trim()
           ? parsed.sessionKey.trim()
@@ -117,6 +129,7 @@ function persistSettings(next: UiSettings) {
     navCollapsed: next.navCollapsed,
     navGroupsCollapsed: next.navGroupsCollapsed,
     ...(next.locale ? { locale: next.locale } : {}),
+    ...(isLocalhostOrigin() && next.token ? { token: next.token } : {}),
   };
   localStorage.setItem(KEY, JSON.stringify(persisted));
 }

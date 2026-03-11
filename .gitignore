@@ -121,3 +121,10 @@ dist/protocol.schema.json
 
 # Synthing
 **/.stfolder/
+
+# OpenClaw 项目内状态目录（使用 openclaw-config 时可选）
+.openclaw-state/
+
+# 与 OpenClaw 无关的本地/个人文件（已移至 _local/，仅保留目录说明可提交）
+_local/*
+!_local/README.md

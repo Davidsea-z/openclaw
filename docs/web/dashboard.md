@@ -42,11 +42,10 @@ Prefer localhost, Tailscale Serve, or an SSH tunnel.
 - If `gateway.auth.token` is configured as a SecretRef and is unresolved in your current shell, `openclaw dashboard` still prints a non-tokenized URL plus actionable auth setup guidance.
 - **Not localhost**: use Tailscale Serve (tokenless for Control UI/WebSocket if `gateway.auth.allowTailscale: true`, assumes trusted gateway host; HTTP APIs still need token/password), tailnet bind with a token, or an SSH tunnel. See [Web surfaces](/web).
 
-## If you see “unauthorized” / 1008
+## If you see “unauthorized” / 1008 / HTTP 401
 
 - Ensure the gateway is reachable (local: `openclaw status`; remote: SSH tunnel `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/`).
-- Retrieve or supply the token from the gateway host:
-  - Plaintext config: `openclaw config get gateway.auth.token`
-  - SecretRef-managed config: resolve the external secret provider or export `OPENCLAW_GATEWAY_TOKEN` in this shell, then rerun `openclaw dashboard`
-  - No token configured: `openclaw doctor --generate-gateway-token`
-- In the dashboard settings, paste the token into the auth field, then connect.
+- **Recommended:** run `openclaw dashboard --no-open` and open the **full** URL it prints (including `#token=...`) in the browser. If you open the base URL without the token, you get 401 unless you paste the token in Control UI settings and click Connect.
+- If the CLI says "Token auto-auth unavailable": set a token with `openclaw config set gateway.auth.token "..."` (or export `OPENCLAW_GATEWAY_TOKEN`), **restart the gateway**, then run `openclaw dashboard --no-open` again.
+- No token configured: `openclaw doctor --generate-gateway-token`, then set it in config and restart the gateway.
+- See [Troubleshooting: HTTP 401](/gateway/troubleshooting#http-401-invalid-access-token-or-token-expired-control-ui) for a full checklist.

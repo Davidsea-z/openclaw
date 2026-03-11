@@ -167,4 +167,34 @@ describe("loadSettings default gateway URL derivation", () => {
       navGroupsCollapsed: {},
     });
   });
+
+  it("persists gateway token on localhost so user can set once and reuse", async () => {
+    vi.stubGlobal("location", {
+      protocol: "http:",
+      host: "127.0.0.1:18789",
+      hostname: "127.0.0.1",
+      pathname: "/",
+    });
+
+    const { saveSettings } = await import("./storage.ts");
+    saveSettings({
+      gatewayUrl: "ws://127.0.0.1:18789",
+      token: "local-token-set-once",
+      sessionKey: "main",
+      lastActiveSessionKey: "main",
+      theme: "system",
+      chatFocusMode: false,
+      chatShowThinking: true,
+      splitRatio: 0.6,
+      navCollapsed: false,
+      navGroupsCollapsed: {},
+    });
+
+    const stored = JSON.parse(localStorage.getItem("openclaw.control.settings.v1") ?? "{}");
+    expect(stored.token).toBe("local-token-set-once");
+
+    vi.resetModules();
+    const { loadSettings: loadAgain } = await import("./storage.ts");
+    expect(loadAgain().token).toBe("local-token-set-once");
+  });
 });
