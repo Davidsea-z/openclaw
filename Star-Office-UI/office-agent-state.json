@@ -1,6 +1,6 @@
 {
-  "agentId": "agent_1773194893970_8n7l",
-  "joined": true,
+  "agentId": null,
+  "joined": false,
   "joinKey": "ocj_example_team_01",
   "agentName": "OpenClaw"
 }

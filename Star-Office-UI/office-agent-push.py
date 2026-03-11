@@ -41,13 +41,14 @@ OPENCLAW_HOME = os.environ.get("OPENCLAW_HOME") or os.path.join(os.path.expandus
 OPENCLAW_WORKSPACE_DIR = os.environ.get("OPENCLAW_WORKSPACE_DIR") or os.path.join(OPENCLAW_HOME, "workspace")
 
 DEFAULT_STATE_CANDIDATES = [
+    # 脚本所在目录（Star-Office-UI 根目录），最精准
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json"),
+    # openclaw workspace 自动发现（跨平台，~/.openclaw 兼容 macOS/Linux/Windows）
+    os.path.join(OPENCLAW_WORKSPACE_DIR, "Star-Office-UI", "state.json"),
     os.path.join(OPENCLAW_WORKSPACE_DIR, "star-office-ui", "state.json"),
     os.path.join(OPENCLAW_WORKSPACE_DIR, "state.json"),
-    "/root/.openclaw/workspace/Star-Office-UI/state.json",  # 当前仓库（大小写精确）
-    "/root/.openclaw/workspace/star-office-ui/state.json",  # 历史/兼容路径
-    "/root/.openclaw/workspace/state.json",
+    # 当前工作目录兜底
     os.path.join(os.getcwd(), "state.json"),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json"),
 ]
 
 # 如果对方本地 /status 需要鉴权，可在这里填写 token（或通过环境变量 OFFICE_LOCAL_STATUS_TOKEN）

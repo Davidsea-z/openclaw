@@ -388,6 +388,13 @@ function preload() {
     "/static/flowers-spritesheet" + (supportsWebP ? ".webp" : ".png"),
     { frameWidth: 65, frameHeight: 65 },
   );
+  // 访客角色精灵（6 种，每种 2 帧 64×64）
+  for (let i = 1; i <= 6; i++) {
+    this.load.spritesheet(`guest_anim_${i}`, `/static/guest_anim_${i}.webp`, {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+  }
 }
 
 function create() {
@@ -1119,14 +1126,24 @@ function renderAgent(agent) {
     const container = game.add.container(baseX, baseY);
     container.setDepth(1200 + (isMain ? 100 : 0)); // 放到最顶层！
 
-    // 像素小人：用星星图标，更明显
-    const starIcon = game.add
-      .text(0, 0, "⭐", {
-        fontFamily: "ArkPixel, monospace",
-        fontSize: "32px",
-      })
-      .setOrigin(0.5);
-    starIcon.name = "starIcon";
+    // 访客角色：从 6 种 guest_anim 精灵中按 agentId 哈希选一种，播放2帧动画
+    let roleIdx = 0;
+    for (let i = 0; i < agentId.length; i++) {
+      roleIdx = (roleIdx * 31 + agentId.charCodeAt(i)) % 6;
+    }
+    const guestKey = `guest_anim_${roleIdx + 1}`;
+    // 注册动画（每个key只注册一次）
+    if (!game.anims.exists(guestKey)) {
+      game.anims.create({
+        key: guestKey,
+        frames: game.anims.generateFrameNumbers(guestKey, { start: 0, end: 1 }),
+        frameRate: 4,
+        repeat: -1,
+      });
+    }
+    const catSprite = game.add.sprite(0, 0, guestKey).setOrigin(0.5).setDisplaySize(64, 64);
+    catSprite.play(guestKey);
+    catSprite.name = "catSprite";
 
     // 名字标签（漂浮）
     const nameTag = game.add
@@ -1159,7 +1176,7 @@ function renderAgent(agent) {
     statusDot.setStrokeStyle(2, 0x000000, alpha);
     statusDot.name = "statusDot";
 
-    container.add([starIcon, statusDot, nameTag]);
+    container.add([catSprite, statusDot, nameTag]);
     agents[agentId] = container;
   } else {
     // 更新 agent
